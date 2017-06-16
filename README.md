@@ -1,4 +1,4 @@
-# ember-changeset-history [![Travis](https://travis-ci.org/scazz010/ember-changeset-history.svg?branch=master)](https://travis-ci.org/scazz010/ember-changeset-history)
+# ember-changeset-history [![Travis](https://travis-ci.org/scazz010/ember-changeset-history.svg?branch=master)](https://travis-ci.org/scazz010/ember-changeset-history) [![Code Climate](https://img.shields.io/codeclimate/github/scazz010/ember-changeset-history.svg)](https://codeclimate.com/github/scazz010/ember-changeset-history)
 
 Extension of ember-changeset, providing undo/redo features. To install:
 
