@@ -1,17 +1,96 @@
 # ember-changeset-history
 
-This README outlines the details of collaborating on this Ember addon.
+Extension of ember-changeset, providing undo/redo features. To install:
 
-## Installation
+`ember install ember-changeset-history`
 
-* `git clone <repository-url>` this repository
-* `cd ember-changeset-history`
-* `npm install`
+## Usage
 
-## Running
+```js
+import Ember from 'ember';
+import ChangesetWithHistory from 'ember-changeset-history';
 
-* `ember serve`
-* Visit your app at [http://localhost:4200](http://localhost:4200).
+const { Component, computed } = Ember;
+ 
+export default Component.extend({
+  init() {
+    this._super(...arguments);
+    this.changeset = new ChangesetWithHistory(this.get('model'));
+  },
+  
+  undoDisabled: computed.not('changeset.canUndo'),
+  
+  actions: {
+    undo() {
+      this.changeset.undo();
+    }
+  }
+});
+```
+
+```hbs
+<form>
+  {{input type="checkbox" value=changeset.property}}
+  
+  <button {{action "undo"}} disabled={{undoDisabled}}>Undo</button>
+</form>
+```
+
+## API
+
+* Properties
+  + [`canUndo`](#canundo)
+  + [`canRedo`](#canredo)
+* Methods
+  + [`undo`](#undo)
+  + [`redo`](#redo)
+  + [`resetHistory`](#resethistory)
+  
+#### `canUndo`
+
+Returns a Boolean - true if there is something that can be undone in the changeset
+
+```js
+get(changeset, 'canUndo'); // true
+```
+**[⬆️ back to top](#api)**
+
+#### `canRedo`
+
+Returns a Boolean - true if there is something that can be redone in the changeset
+
+```js
+get(changeset, 'canRedo'); // false
+``` 
+**[⬆️ back to top](#api)**
+
+#### `undo`
+
+Undoes the last change made to the changeset, if there is one available: 
+
+```js
+changeset.undo();
+```
+
+**[⬆️ back to top](#api)**
+
+#### `redo`
+
+Redoes the last change made to the changeset, if some changes have been undo: 
+
+```js
+changeset.redo();
+```
+
+**[⬆️ back to top](#api)**
+
+#### `resetHistory`
+
+Removes all stored history for a changeset. Can be useful if rolling back a changeset and you want to destroy previous history:
+
+```js
+changeset.resetHistory();
+```
 
 ## Running Tests
 
