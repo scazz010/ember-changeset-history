@@ -8,6 +8,9 @@ export default Ember.Component.extend({
   propertyPath: null,
   wait: 400,
 
+  //HTML
+  tagName: '',
+
   setValue: task(function * (newValue) {
     yield timeout(this.get('wait'));
 
