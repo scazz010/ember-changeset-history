@@ -31,7 +31,7 @@ export default class Changeset {
   }
 }
 
-export function changesetHistory() {
+export function changesetHistory(model, validator, { maxHistoryLength=0 } = {}) {
   let changesetClass = changeset(...arguments);
 
   return changesetClass.extend({
@@ -54,7 +54,11 @@ export function changesetHistory() {
         return;
       }
 
-      set(this, PAST, [...this[PAST], originalState]);
+      let newPast = [...this[PAST], originalState];
+      if (maxHistoryLength) {
+        newPast.splice(0, newPast.length - maxHistoryLength);
+      }
+      set(this, PAST, newPast);
       set(this, FUTURE, []);
     },
 

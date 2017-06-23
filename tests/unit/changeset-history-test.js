@@ -189,3 +189,21 @@ test('#resetHistory removes past and future state', function(assert) {
   changeset.undo();
   assert.equal(changeset.get(defaultProperty), firstStringValue);
 });
+
+test('maxHistoryLength limits history length', function(assert) {
+  changeset = new ChangesetHistory(dummyModel, () => true, {}, {maxHistoryLength: 2});
+  changeset.set(defaultProperty, firstStringValue);
+  changeset.set(defaultProperty, secondStringValue);
+  changeset.set(defaultProperty, defaultPropertyValue);
+
+  changeset.undo();
+  assert.equal(changeset.get(defaultProperty), secondStringValue);
+  changeset.undo();
+  assert.equal(changeset.get(defaultProperty), firstStringValue);
+  changeset.undo();
+  assert.equal(changeset.get(defaultProperty), firstStringValue);
+
+
+
+
+});

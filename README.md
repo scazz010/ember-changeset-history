@@ -8,6 +8,11 @@ Extension of ember-changeset, providing undo/redo features. To install:
 
 ## Usage
 
+Create a new changeset
+```js
+  ChangesetHistory(model, validator, { maxHistoryLength: 0 }); //validator and maxHistoryLength are optional
+```
+
 ```js
 import Ember from 'ember';
 import ChangesetWithHistory from 'ember-changeset-history';
@@ -17,7 +22,7 @@ const { Component, computed } = Ember;
 export default Component.extend({
   init() {
     this._super(...arguments);
-    this.changeset = new ChangesetWithHistory(this.get('model'));
+    this.changeset = new ChangesetWithHistory(this.get('model'), null, { maxHistoryLength: 0});
   },
   
   undoDisabled: computed.not('changeset.canUndo'),
@@ -32,7 +37,9 @@ export default Component.extend({
 
 ```hbs
 <form>
-  {{input type="checkbox" value=changeset.property}}
+  {{#debounced-value property=changeset.property as |debouncer|}}
+    <input type="text" value=changeset.property oninput={{action debouncer value="target.value"}}>
+  {{/debounced-value}}
   
   <button {{action "undo"}} disabled={{undoDisabled}}>Undo</button>
 </form>
