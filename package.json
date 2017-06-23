@@ -1,6 +1,6 @@
 {
   "name": "ember-changeset-history",
-  "version": "0.1.1",
+  "version": "0.2.1",
   "description": "Extension to ember-changeset adding history and undo functionality.",
   "keywords": [
     "ember-addon",
