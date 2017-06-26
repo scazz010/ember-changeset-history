@@ -2,7 +2,9 @@
 
 Check out the [live demo](https://ember-changeset-history-demo.pagefrontapp.com)
 
-Extension of ember-changeset, providing undo/redo features. To install:
+Extension of ember-changeset, providing undo/redo features. Also ships with a debounced-value helper for grouping changes together 
+
+To install:
 
 `ember install ember-changeset-history`
 
@@ -10,7 +12,8 @@ Extension of ember-changeset, providing undo/redo features. To install:
 
 Create a new changeset
 ```js
-  ChangesetHistory(model, validator, { maxHistoryLength: 0 }); //validator and maxHistoryLength are optional
+  // omitting maxHistoryLength option or setting to 0 keeps infinite history
+  ChangesetHistory(model, validator, {}, { maxHistoryLength: 0 }); 
 ```
 
 ```js
@@ -22,7 +25,7 @@ const { Component, computed } = Ember;
 export default Component.extend({
   init() {
     this._super(...arguments);
-    this.changeset = new ChangesetWithHistory(this.get('model'), null, { maxHistoryLength: 0});
+    this.changeset = new ChangesetWithHistory(this.get('model'), () => true, {}, { maxHistoryLength: 100}); 
   },
   
   undoDisabled: computed.not('changeset.canUndo'),
@@ -47,6 +50,7 @@ export default Component.extend({
 
 ## API
 
+### ChangesetHistory 
 * Properties
   + [`canUndo`](#canundo)
   + [`canRedo`](#canredo)
@@ -100,6 +104,51 @@ Removes all stored history for a changeset. Can be useful if rolling back a chan
 ```js
 changeset.resetHistory();
 ```
+
+### debounced-helper
+Yields an action which is debounced. 
+ 
+* Properties
+  + [`wait`](#wait)
+  + [`property`](#property)
+  + [`propertyPath`](#propertypath)
+  + [`onChange`](#onchange)
+
+#### `wait`
+
+The time in milliseconds to debounce changes. The default is 400. 
+
+#### `property`
+
+The property to debounce changes to. Not required if you're updating the property yourselve via the onchange action
+   
+#### `propertyPath`
+
+Will be send along with the new value to the onChange action, if one is provided
+
+#### `onChange`
+
+Action to fire after changes have been debounced. If this is not provided, the value will be mutated by debounced-value component directly. 
+
+```hbs
+{{#debounced-value
+  propertyPath="changeset.description"
+  onChange=(action "customSetter")
+  as |debouncer|}}
+
+    <input class="form-control" value={{changeset.description}} oninput={{action debouncer value="target.value"}}>
+
+{{/debounced-value}}
+```
+
+```js
+  actions: {
+    customSetter(propertyPath, newValue) {
+      this.set(propertyPath, newValue);
+    }
+  }
+```
+  
 
 ## Running Tests
 
