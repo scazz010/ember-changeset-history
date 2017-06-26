@@ -31,7 +31,7 @@ export default class Changeset {
   }
 }
 
-export function changesetHistory(model, validator, { maxHistoryLength=0 } = {}) {
+export function changesetHistory(obj, validateFn = () => true, validationMap = {}, {maxHistoryLength=0} = {}) {
   let changesetClass = changeset(...arguments);
 
   return changesetClass.extend({
@@ -78,11 +78,7 @@ export function changesetHistory(model, validator, { maxHistoryLength=0 } = {}) 
       set(this, FUTURE, [currentState, ...this[FUTURE]]);
 
       this._setCurrentState(newState);
-
-      let uniqueChangedKeys = [...new Set(keys(currentState.changes).concat(keys(newState.changes)))];
-      uniqueChangedKeys.forEach(key => {
-        this.notifyPropertyChange(key);
-      });
+      this._notifyChangedVirtualProperties(currentState, newState);
     },
 
     redo() {
@@ -98,15 +94,7 @@ export function changesetHistory(model, validator, { maxHistoryLength=0 } = {}) 
       set(this, FUTURE, futureStates.slice(1, futureStates.length));
 
       this._setCurrentState(newState);
-
-      let uniqueChangedKeys = [...new Set(keys(currentState.changes).concat(
-        keys(newState.changes),
-        keys(newState.errors),
-        keys(currentState.errors)
-      ))];
-      uniqueChangedKeys.forEach(key => {
-        this.notifyPropertyChange(key);
-      });
+      this._notifyChangedVirtualProperties(currentState, newState)
     },
 
     merge() {
@@ -157,6 +145,19 @@ export function changesetHistory(model, validator, { maxHistoryLength=0 } = {}) 
     _setCurrentState: function (newState) {
       set(this, CHANGES, assign({}, newState.changes));
       set(this, ERRORS, assign({}, newState.errors));
+    },
+
+    _notifyChangedVirtualProperties(originalState, newState) {
+      const allChangedKeys = [
+        ...keys(originalState.changes),
+        ...keys(originalState.errors),
+        ...keys(newState.changes),
+        ...keys(newState.errors)];
+
+      const uniqueChangedKeys = [...new Set(allChangedKeys)];
+      uniqueChangedKeys.forEach(key => {
+        this.notifyPropertyChange(key);
+      });
     }
   });
 }

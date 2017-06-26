@@ -1,5 +1,7 @@
 import Ember from 'ember';
 import ChangesetHistory from 'ember-changeset-history';
+import { validatePresence, validateLength } from 'ember-changeset-validations/validators';
+import lookupValidator from 'ember-changeset-validations';
 import { module, test } from 'qunit';
 
 const {
@@ -49,6 +51,36 @@ test('#history only updated when something changes', function(assert) {
   changeset.set(defaultProperty, firstStringValue);
   changeset.undo();
   assert.equal(get(changeset, defaultProperty), defaultPropertyValue);
+});
+
+test('Undo works with validation errors', function(assert) {
+  const validations = {
+    [defaultProperty]: [validatePresence(true), validateLength({min: 2})]
+  };
+  const validator = lookupValidator(validations);
+  changeset = new ChangesetHistory(dummyModel, validator);
+
+  changeset.set(defaultProperty, 's');
+  assert.equal(get(changeset, defaultProperty), 's');
+  changeset.undo();
+  assert.equal(get(changeset, defaultProperty), defaultPropertyValue);
+});
+
+test('Redo works with validation errors', function(assert) {
+  const validations = {
+    [defaultProperty]: [validatePresence(true), validateLength({min: 2})]
+  };
+  const validator = lookupValidator(validations);
+  changeset = new ChangesetHistory(dummyModel, validator);
+
+  changeset.set(defaultProperty, 's');
+  changeset.set(defaultProperty, 'y');
+  changeset.undo();
+  changeset.undo();
+  changeset.redo();
+  assert.equal(get(changeset, defaultProperty), 's');
+  changeset.redo();
+  assert.equal(get(changeset, defaultProperty), 'y');
 });
 
 test('#undo rolls back changes to new property', function(assert) {
@@ -202,8 +234,4 @@ test('maxHistoryLength limits history length', function(assert) {
   assert.equal(changeset.get(defaultProperty), firstStringValue);
   changeset.undo();
   assert.equal(changeset.get(defaultProperty), firstStringValue);
-
-
-
-
 });
